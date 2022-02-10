@@ -1,19 +1,46 @@
 import React, {useState} from 'react';
 import 'devextreme/dist/css/dx.light.css';
+import CustomStore from 'devextreme/data/custom_store';
 import Scheduler from 'devextreme-react/scheduler';
 import axios from 'axios';
 
 let meetingHours = 9;
 let discount = 5;
-let rate = 0.1
-let credit = 50
-let customer = 'abc company'
+let rate = 0.1;
+let credit = 50;
+let customer = 'abc company';
+let roomId = 1;
 
 
+function handleErrors(response) {
+  if (!response.ok) {
+      throw Error(response.statusText);
+  }
+  return response;
+}
+
+const meetings = new CustomStore({
+  key: 'ID',
+  loadMode: 'raw', // omit in the DataGrid, TreeList, PivotGrid, and Scheduler
+  load: () => {
+      return fetch(`/meetings/${roomId}`)
+          .then(handleErrors)
+          .then(response => response.json())
+          .catch(() => { throw 'Network error' });
+  }
+});
 // const meetings = new CustomStore({
-//   key: 'id',
+//   key: roomId,
 //   load: () => {
-
+//     return axios.get(`/meetings/${roomId}`)
+//       .then((err, { data }) => {
+//         console.log(err)
+//         return data
+//       })
+//       .then((data) => {
+//         return (data.json())
+//       })
+//       .then(() => { throw 'Network error'})
 //   }
 // })
 
@@ -117,7 +144,7 @@ class DayOfficeScheduler extends React.Component {
   render() {
     return (
         <Scheduler id="dayOfficeScheduler"
-          dataSource={this.state.meetings}
+          dataSource={meetings}
           maxAppointmentsPerCell={1}
           endDayHour={17}
           startDayHour={8}
