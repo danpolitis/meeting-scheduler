@@ -10,18 +10,19 @@ let credit = 50
 let customer = 'abc company'
 
 
-const meetings = new CustomStore({
-  key: 'id',
-  load: () => {
+// const meetings = new CustomStore({
+//   key: 'id',
+//   load: () => {
 
-  }
-})
+//   }
+// })
 
 
 const onAppointmentFormOpening = (e) => {
   let price =(calculatePrice((e.appointmentData.endDate- e.appointmentData.startDate)/3600000, rate, credit, discount))
   e.popup.option('showTitle', true);
   e.popup.option('titleTemplate', `Final Price: $${price[0]}, Free Hours Remaining: ${price[1]} hours, Credits Remaining: $${price[2]}, Free Hours Used: ${price[3]} hours, Credits Used: $${price[4]}`)
+  console.log(typeof(e.appointmentData.startDate))
   // e.popup.option('title', `Free Hours Remaining: ${price[1]}, Credits Remaining: ${price[2]}. Price: ${price[0]}, Free Hours Used: ${price[3]}, Credits Used: ${price[4]}`);
 }
 
