@@ -11,7 +11,6 @@ let credit = 50;
 let customer = 'abc company';
 let roomId = 1;
 
-
 function handleErrors(response) {
   if (!response.ok) {
       throw Error(response.statusText);
@@ -27,23 +26,18 @@ const meetings = new CustomStore({
           .then(handleErrors)
           .then(response => response.json())
           .catch(() => { throw 'Network error' });
-  }
+  },
+  insert: (values) => {
+    return fetch('/meetings', {
+        method: "POST",
+        body: JSON.stringify(values),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(handleErrors);
+}
 });
-// const meetings = new CustomStore({
-//   key: roomId,
-//   load: () => {
-//     return axios.get(`/meetings/${roomId}`)
-//       .then((err, { data }) => {
-//         console.log(err)
-//         return data
-//       })
-//       .then((data) => {
-//         return (data.json())
-//       })
-//       .then(() => { throw 'Network error'})
-//   }
-// })
-
 
 const onAppointmentFormOpening = (e) => {
   let price =(calculatePrice((e.appointmentData.endDate- e.appointmentData.startDate)/3600000, rate, credit, discount))
@@ -59,6 +53,7 @@ const onAppointmentAdding = (e) => {
   e.appointmentData.hoursUsed = price[3];
   e.appointmentData.creditsUsed = price[4];
   e.appointmentData.text = customer;
+  e.appointmentData.roomId = roomId;
 }
 
 const remainingDiscountHours = (hours, discountHours) => {
