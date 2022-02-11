@@ -7,4 +7,13 @@ router.route('/meetings/:roomId')
 router.route('/meetings')
   .post(controllers.meetings.post)
 
+router.route('/meetings/:id')
+  .delete(controllers.meetings.delete)
+
+router.route('/rooms')
+  .get(controllers.rooms.get)
+
+router.route('/customers')
+  .get(controllers.customers.get)
+
   module.exports = router;

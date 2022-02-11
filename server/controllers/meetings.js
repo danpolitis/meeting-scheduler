@@ -20,7 +20,7 @@ module.exports = {
 
     console.log(params)
 
-    const queryString = 'INSERT INTO meetings (customer, "allDay", "startDate", "endDate", price, description, "hoursUsed", "creditsUsed", "roomId") VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)';
+    const queryString = 'INSERT INTO meetings (text, "allDay", "startDate", "endDate", price, description, "hoursUsed", "creditsUsed", "roomId") VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)';
 
     pool.query(queryString, params)
       .then((results) => {
@@ -28,6 +28,19 @@ module.exports = {
       })
       .catch((err) => {
         res.status(400).send(err);
+      })
+  },
+
+  delete: (req, res) => {
+    params = [req.params.id]
+    const queryString = 'DELETE FROM meetings WHERE id=$1'
+
+    pool.query(queryString, params)
+      .then((results) => {
+        res.status(202).send(results)
+      })
+      .catch((err) => {
+        res.status(404).send(results)
       })
   }
 }

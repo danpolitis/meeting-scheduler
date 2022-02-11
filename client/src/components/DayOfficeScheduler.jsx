@@ -1,8 +1,10 @@
 import React, {useState} from 'react';
 import 'devextreme/dist/css/dx.light.css';
 import CustomStore from 'devextreme/data/custom_store';
-import Scheduler from 'devextreme-react/scheduler';
+import DataSource from 'devextreme/data/data_source'
+import Scheduler, { Editing } from 'devextreme-react/scheduler';
 import axios from 'axios';
+import { Button } from 'devextreme-react/button';
 
 let meetingHours = 9;
 let discount = 5;
@@ -12,39 +14,49 @@ let customer = 'abc company';
 let roomId = 1;
 
 function handleErrors(response) {
+  console.log(response)
   if (!response.ok) {
       throw Error(response.statusText);
   }
   return response;
 }
 
-const meetings = new CustomStore({
-  key: 'ID',
-  loadMode: 'raw', // omit in the DataGrid, TreeList, PivotGrid, and Scheduler
+const meetings = new DataSource({
+  key: 'id',
+  loadMode: 'raw',
   load: () => {
-      return fetch(`/meetings/${roomId}`)
-          .then(handleErrors)
-          .then(response => response.json())
-          .catch(() => { throw 'Network error' });
+    return fetch(`/meetings/${roomId}`)
+    .then(handleErrors)
+    .then(response => response.json())
+    .catch(() => { throw 'Network error' });
   },
   insert: (values) => {
     return fetch('/meetings', {
-        method: "POST",
-        body: JSON.stringify(values),
-        headers: {
-            'Content-Type': 'application/json'
-        }
+      method: "POST",
+      body: JSON.stringify(values),
+      headers: {
+          'Content-Type': 'application/json'
+      }
     })
-    .then(handleErrors);
-}
+    .then(handleErrors)
+  },
+  remove: (key) => {
+    return fetch(`/meetings/${key}`, {
+      method: "DELETE"
+    })
+    .then(handleErrors)
+  }
 });
 
-const onAppointmentFormOpening = (e) => {
-  let price =(calculatePrice((e.appointmentData.endDate- e.appointmentData.startDate)/3600000, rate, credit, discount))
-  e.popup.option('showTitle', true);
-  e.popup.option('titleTemplate', `Final Price: $${price[0]}, Free Hours Remaining: ${price[1]} hours, Credits Remaining: $${price[2]}, Free Hours Used: ${price[3]} hours, Credits Used: $${price[4]}`)
-  console.log(typeof(e.appointmentData.startDate))
-  // e.popup.option('title', `Free Hours Remaining: ${price[1]}, Credits Remaining: ${price[2]}. Price: ${price[0]}, Free Hours Used: ${price[3]}, Credits Used: ${price[4]}`);
+const onAppointmentFormOpening = (e, model) => {
+  if (e.appointmentData.hoursUsed !== undefined) {
+    e.popup.option('showTitle', true);
+    e.popup.option('titleTemplate', `Final Price: $${e.appointmentData.price}, Free Hours Used: ${e.appointmentData.hoursUsed} hours, Credit Used: $${e.appointmentData.creditsUsed}`)
+  } else {
+    let price =(calculatePrice((e.appointmentData.endDate- e.appointmentData.startDate)/3600000, rate, credit, discount))
+    e.popup.option('showTitle', true);
+    e.popup.option('titleTemplate', `Final Price: $${price[0]}, Free Hours Remaining: ${price[1]} hours, Credit Remaining: $${price[2]}, Free Hours Used: ${price[3]} hours, Credit Used: $${price[4]}`)
+  }
 }
 
 const onAppointmentAdding = (e) => {
@@ -54,6 +66,14 @@ const onAppointmentAdding = (e) => {
   e.appointmentData.creditsUsed = price[4];
   e.appointmentData.text = customer;
   e.appointmentData.roomId = roomId;
+}
+
+const onAppointmentAdded = (e) => {
+  meetings.reload()
+}
+
+const onAppointmentDeleted = (e) => {
+  meetings.reload()
 }
 
 const remainingDiscountHours = (hours, discountHours) => {
@@ -116,17 +136,6 @@ const calculatePrice = (hours, rate, credit, freeHours) => {
   return [price, dHours, rCredit, hoursUsed, creditUsed];
 }
 
-const renderAppointmentTooltip = (model) => {
-  return (
-    <div style = {{height: '100px'}}>
-      <i>{model.appointmentData.description}</i>
-      <p>Total Cost: {model.appointmentData.price}</p>
-      <p>Credits Used: {model.appointmentData.creditsUsed}</p>
-      <p>Hours Used: {model.appointmentData.hoursUsed}</p>
-    </div>
-  );
-}
-
 class DayOfficeScheduler extends React.Component {
   constructor(props) {
     super(props);
@@ -146,8 +155,13 @@ class DayOfficeScheduler extends React.Component {
           cellDuration={270}
           onAppointmentFormOpening={onAppointmentFormOpening}
           onAppointmentAdding={onAppointmentAdding}
-          appointmentTooltipRender={renderAppointmentTooltip}
-        />
+          onAppointmentAdded={onAppointmentAdded}
+          onAppointmentDeleted={onAppointmentDeleted}
+        >
+          <Editing
+            allowUpdating={false}
+          />
+        </Scheduler>
     );
   }
 }
