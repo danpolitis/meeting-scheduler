@@ -26,7 +26,7 @@ module.exports = {
           { loader: "css-loader" }]
       },
       {
-        test: /\.(eot|svg|ttf|woff|woff2)$/,
+        test: /\.(eot|svg|woff|woff2)$/,
         use: "url-loader?name=[name].[ext]"
       }
     ]

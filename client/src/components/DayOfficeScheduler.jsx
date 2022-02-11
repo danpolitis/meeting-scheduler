@@ -1,10 +1,7 @@
 import React, {useState} from 'react';
-import 'devextreme/dist/css/dx.light.css';
-import CustomStore from 'devextreme/data/custom_store';
 import DataSource from 'devextreme/data/data_source'
 import Scheduler, { Editing } from 'devextreme-react/scheduler';
 import axios from 'axios';
-import { Button } from 'devextreme-react/button';
 
 let meetingHours = 9;
 let discount = 5;
