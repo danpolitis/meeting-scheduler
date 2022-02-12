@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
-import DataSource from 'devextreme/data/data_source'
+import DataSource from 'devextreme/data/data_source';
+import CustomStore from 'devextreme/data/custom_store';
 import Scheduler, { Editing } from 'devextreme-react/scheduler';
 import axios from 'axios';
 
@@ -11,10 +12,10 @@ let customer = 'abc company';
 let roomId = 1;
 
 function handleErrors(response) {
-  console.log(response)
   if (!response.ok) {
       throw Error(response.statusText);
   }
+  console.log(response)
   return response;
 }
 
@@ -22,6 +23,7 @@ const meetings = new DataSource({
   key: 'id',
   loadMode: 'raw',
   load: () => {
+    roomId = document.getElementById("schedulerWrapper").attributes.roomid.value
     return fetch(`/meetings/${roomId}`)
     .then(handleErrors)
     .then(response => response.json())
@@ -44,34 +46,6 @@ const meetings = new DataSource({
     .then(handleErrors)
   }
 });
-
-const onAppointmentFormOpening = (e, model) => {
-  if (e.appointmentData.hoursUsed !== undefined) {
-    e.popup.option('showTitle', true);
-    e.popup.option('titleTemplate', `Final Price: $${e.appointmentData.price}, Free Hours Used: ${e.appointmentData.hoursUsed} hours, Credit Used: $${e.appointmentData.creditsUsed}`)
-  } else {
-    let price =(calculatePrice((e.appointmentData.endDate- e.appointmentData.startDate)/3600000, rate, credit, discount))
-    e.popup.option('showTitle', true);
-    e.popup.option('titleTemplate', `Final Price: $${price[0]}, Free Hours Remaining: ${price[1]} hours, Credit Remaining: $${price[2]}, Free Hours Used: ${price[3]} hours, Credit Used: $${price[4]}`)
-  }
-}
-
-const onAppointmentAdding = (e) => {
-  let price =(calculatePrice((e.appointmentData.endDate- e.appointmentData.startDate)/3600000, rate, credit, discount));
-  e.appointmentData.price = price[0];
-  e.appointmentData.hoursUsed = price[3];
-  e.appointmentData.creditsUsed = price[4];
-  e.appointmentData.text = customer;
-  e.appointmentData.roomId = roomId;
-}
-
-const onAppointmentAdded = (e) => {
-  meetings.reload()
-}
-
-const onAppointmentDeleted = (e) => {
-  meetings.reload()
-}
 
 const remainingDiscountHours = (hours, discountHours) => {
   if (discountHours > hours) {
@@ -97,30 +71,37 @@ const remainingCredit = (price, credit) => {
   }
 }
 
-const calculatePrice = (hours, rate, credit, freeHours) => {
+const calculateHours = (endDate, startDate) => {
+  return ((new Date(endDate)- new Date(startDate))/3600000)
+}
+
+const calculatePrice = (hours, rate, credit, freeHours, roomType, halfHourlyRate, halfDayRate, fullDayRate) => {
   let price;
 
-  let dHours = remainingDiscountHours(hours, freeHours);
-  let hoursUsed = freeHours - dHours
-
+  let remainingFreeHours = remainingDiscountHours(hours, freeHours);
+  let hoursUsed = freeHours - remainingFreeHours
   hours = remainingUnpaidHours(hours, freeHours);
 
   if (hours === 0) {
     if (hoursUsed > 4.5) {
-      return [0, dHours, credit, hoursUsed, 0]
+      return [0, remainingFreeHours, credit, hoursUsed, 0]
     } else {
-      return [0, dHours, credit, hoursUsed, 0]
+      return [0, remainingFreeHours, credit, hoursUsed, 0]
     }
   }
-
-  if (hours/4.5 > 1) {
-    price = 150;
+  if(roomType === 'office'){
+    if (hours/4.5 > 1) {
+      price = fullDayRate;
+    } else {
+      price = halfDayRate;
+    }
   } else {
-    price = 90;
+    price = halfHourlyRate * hours/(.5)
   }
 
-  let rCredit = remainingCredit(price, credit);
-  let creditUsed = credit - rCredit;
+
+  let leftoverCredit = remainingCredit(price, credit);
+  let creditUsed = credit - leftoverCredit;
 
   if (price > credit) {
     price = price - credit;
@@ -130,35 +111,78 @@ const calculatePrice = (hours, rate, credit, freeHours) => {
 
   price = price * rate;
 
-  return [price, dHours, rCredit, hoursUsed, creditUsed];
+  return [price, remainingFreeHours, leftoverCredit, hoursUsed, creditUsed];
 }
+
+
 
 class DayOfficeScheduler extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      meetings: [],
-      nextMeeting:  {}
+      meetingInterval: 0
     }
   }
 
+  onAppointmentFormOpening = (e) => {
+    if (e.appointmentData.hoursUsed !== undefined) {
+      e.popup.option('showTitle', true);
+      e.popup.option('titleTemplate', `Final Price: $${e.appointmentData.price}, Free Hours Used: ${e.appointmentData.hoursUsed} hours, Credit Used: $${e.appointmentData.creditsUsed}`)
+    } else {
+
+      let price =(calculatePrice(calculateHours(e.appointmentData.endDate, e.appointmentData.startDate), this.props.rate, this.props.credit, this.props.freeHours, this.props.roomType, this.props.halfHourlyRate, this.props.halfDayRate, this.props.fullDayRate))
+      e.popup.option('showTitle', true);
+      e.popup.option('titleTemplate', `Final Price: $${price[0]}, Free Hours Remaining: ${price[1]} hours, Credit Remaining: $${price[2]}, Free Hours Used: ${price[3]} hours, Credit Used: $${price[4]}`)
+    }
+  }
+
+  onAppointmentAdding = (e) => {
+    let price =(calculatePrice(calculateHours(e.appointmentData.endDate, e.appointmentData.startDate), this.props.rate, this.props.credit, this.props.freeHours, this.props.roomType, this.props.halfHourlyRate, this.props.halfDayRate, this.props.fullDayRate));
+    e.appointmentData.price = price[0];
+    e.appointmentData.hoursUsed = price[3];
+    e.appointmentData.creditsUsed = price[4];
+    e.appointmentData.text = this.props.customerName;
+    e.appointmentData.roomId = this.props.roomId;
+
+  }
+
+  onAppointmentAdded = (e) => {
+    meetings.reload()
+  }
+
+  onAppointmentDeleted = (e) => {
+    meetings.reload()
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.roomId !== prevProps.roomId) {
+      meetings.reload()
+    }
+  }
+
+
   render() {
     return (
+      <div id="schedulerWrapper" roomid={this.props.roomId}>
         <Scheduler id="dayOfficeScheduler"
           dataSource={meetings}
           maxAppointmentsPerCell={1}
           endDayHour={17}
           startDayHour={8}
-          cellDuration={270}
-          onAppointmentFormOpening={onAppointmentFormOpening}
-          onAppointmentAdding={onAppointmentAdding}
-          onAppointmentAdded={onAppointmentAdded}
-          onAppointmentDeleted={onAppointmentDeleted}
+          cellDuration={this.props.roomType === 'office' ? 270 : 30}
+          onAppointmentFormOpening={this.onAppointmentFormOpening}
+          onAppointmentAdding={this.onAppointmentAdding}
+          onAppointmentAdded={this.onAppointmentAdded}
+          onAppointmentDeleted={this.onAppointmentDeleted}
+          currentView={'week'}
+          width={'70%'}
+          style={{ margin: 'auto' }}
         >
           <Editing
             allowUpdating={false}
           />
         </Scheduler>
+      </div>
     );
   }
 }

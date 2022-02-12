@@ -6,7 +6,7 @@ module.exports = {
 
     pool.query(queryString)
       .then((results) => {
-        res.status(200).send(results);
+        res.status(200).send(results.rows);
       })
       .catch((err) => {
         res.status(404).send(err);

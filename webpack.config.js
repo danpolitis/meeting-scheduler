@@ -23,12 +23,19 @@ module.exports = {
         test: /\.css$/,
         use: [
           { loader: "style-loader" },
-          { loader: "css-loader" }]
+          { loader: "css-loader" },
+        ]
       },
       {
         test: /\.(eot|svg|woff|woff2)$/,
         use: "url-loader?name=[name].[ext]"
       }
     ]
-  }
+  },
+
+  resolve: {
+    alias: {
+        'inferno': 'inferno/dist/index.dev.esm.js',
+    },
+},
 }
