@@ -37,6 +37,20 @@ const App = () => {
     getRooms();
   }, [])
 
+  const updateCustomerInfo = () => {
+    if (selectedCustomer !== undefined) {
+      for (var i = 0; i < customers.length; i++) {
+        if (customers[i].id === selectedCustomer.id){
+          setSelectedCustomer(customers[i])
+        }
+      }
+    }
+  }
+
+  useEffect(() => {
+    updateCustomerInfo();
+  }, [customers])
+
   const handleCustomerSelect = (e) => {
     setSelectedCustomer(JSON.parse(e))
   }
@@ -87,6 +101,7 @@ const App = () => {
           halfHourlyRate={selectedRoom.half_hourly_rate}
           halfDayRate={selectedRoom.half_day_rate}
           fullDayRate={selectedRoom.full_day_rate}
+          getCustomers={getCustomers}
         />
       }
     </>

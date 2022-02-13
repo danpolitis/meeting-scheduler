@@ -4,18 +4,11 @@ import CustomStore from 'devextreme/data/custom_store';
 import Scheduler, { Editing } from 'devextreme-react/scheduler';
 import axios from 'axios';
 
-let meetingHours = 9;
-let discount = 5;
-let rate = 0.1;
-let credit = 50;
-let customer = 'abc company';
-let roomId = 1;
-
 function handleErrors(response) {
   if (!response.ok) {
       throw Error(response.statusText);
   }
-  console.log(response)
+
   return response;
 }
 
@@ -23,7 +16,7 @@ const meetings = new DataSource({
   key: 'id',
   loadMode: 'raw',
   load: () => {
-    roomId = document.getElementById("schedulerWrapper").attributes.roomid.value
+    let roomId = document.getElementById("schedulerWrapper").attributes.roomid.value
     return fetch(`/meetings/${roomId}`)
     .then(handleErrors)
     .then(response => response.json())
@@ -64,7 +57,7 @@ const remainingUnpaidHours = (hours, discountHours) => {
 }
 
 const remainingCredit = (price, credit) => {
-  if (price > credit) {
+  if (price >= credit) {
     return 0;
   } else {
     return credit - price;
@@ -143,15 +136,16 @@ class DayOfficeScheduler extends React.Component {
     e.appointmentData.creditsUsed = price[4];
     e.appointmentData.text = this.props.customerName;
     e.appointmentData.roomId = this.props.roomId;
-
   }
 
   onAppointmentAdded = (e) => {
     meetings.reload()
+    this.props.getCustomers()
   }
 
   onAppointmentDeleted = (e) => {
     meetings.reload()
+    this.props.getCustomers()
   }
 
   componentDidUpdate(prevProps) {
