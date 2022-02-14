@@ -125,7 +125,6 @@ class RoomScheduler extends React.Component {
     e.appointmentData.creditsUsed = price[4];
     e.appointmentData.text = this.props.customerName;
     e.appointmentData.roomId = this.props.roomId;
-    e.appointmentData.allDay=false;
   }
 
   onAppointmentAdded = (e) => {
