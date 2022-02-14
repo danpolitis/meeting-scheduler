@@ -159,7 +159,7 @@ class RoomScheduler extends React.Component {
           onAppointmentDeleted={this.onAppointmentDeleted}
           defaultCurrentView={'week'}
           width={'70%'}
-          style={{ margin: 'auto' }}
+          style={{ margin: 'auto', paddingBottom: '100px' }}
         >
           <Editing
             allowUpdating={false}
