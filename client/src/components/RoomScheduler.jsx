@@ -8,7 +8,6 @@ function handleErrors(response) {
   if (!response.ok) {
       throw Error(response.statusText);
   }
-
   return response;
 }
 
@@ -70,11 +69,9 @@ const calculateHours = (endDate, startDate) => {
 
 const calculatePrice = (hours, rate, credit, freeHours, roomType, halfHourlyRate, halfDayRate, fullDayRate) => {
   let price;
-
   let remainingFreeHours = remainingDiscountHours(hours, freeHours);
   let hoursUsed = freeHours - remainingFreeHours
   hours = remainingUnpaidHours(hours, freeHours);
-
   if (hours === 0) {
     if (hoursUsed > 4.5) {
       return [0, remainingFreeHours, credit, hoursUsed, 0]
@@ -91,25 +88,18 @@ const calculatePrice = (hours, rate, credit, freeHours, roomType, halfHourlyRate
   } else {
     price = halfHourlyRate * hours/(.5)
   }
-
-
   let leftoverCredit = remainingCredit(price, credit);
   let creditUsed = credit - leftoverCredit;
-
   if (price > credit) {
     price = price - credit;
   } else {
     price = 0;
   }
-
   price = price * rate;
-
   return [price, remainingFreeHours, leftoverCredit, hoursUsed, creditUsed];
 }
 
-
-
-class DayOfficeScheduler extends React.Component {
+class RoomScheduler extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -122,7 +112,6 @@ class DayOfficeScheduler extends React.Component {
       e.popup.option('showTitle', true);
       e.popup.option('titleTemplate', `Final Price: $${e.appointmentData.price}, Free Hours Used: ${e.appointmentData.hoursUsed} hours, Credit Used: $${e.appointmentData.creditsUsed}`)
     } else {
-
       let price =(calculatePrice(calculateHours(e.appointmentData.endDate, e.appointmentData.startDate), this.props.rate, this.props.credit, this.props.freeHours, this.props.roomType, this.props.halfHourlyRate, this.props.halfDayRate, this.props.fullDayRate))
       e.popup.option('showTitle', true);
       e.popup.option('titleTemplate', `Final Price: $${price[0]}, Free Hours Remaining: ${price[1]} hours, Credit Remaining: $${price[2]}, Free Hours Used: ${price[3]} hours, Credit Used: $${price[4]}`)
@@ -154,11 +143,10 @@ class DayOfficeScheduler extends React.Component {
     }
   }
 
-
   render() {
     return (
       <div id="schedulerWrapper" roomid={this.props.roomId}>
-        <Scheduler id="dayOfficeScheduler"
+        <Scheduler id="roomScheduler"
           dataSource={meetings}
           maxAppointmentsPerCell={1}
           endDayHour={17}
@@ -181,4 +169,4 @@ class DayOfficeScheduler extends React.Component {
   }
 }
 
-export default DayOfficeScheduler;
+export default RoomScheduler;

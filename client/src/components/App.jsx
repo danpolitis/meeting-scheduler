@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios'
-import DayOfficeScheduler from './DayOfficeScheduler.jsx'
+import RoomScheduler from './RoomScheduler.jsx'
 import 'devextreme/dist/css/dx.light.css'
 import { Navbar, Container, DropdownButton, Dropdown} from 'react-bootstrap'
 import CustomerInfo from './CustomerInfo.jsx'
@@ -91,7 +91,7 @@ const App = () => {
       </Container>
       {
         selectedRoom !== undefined && selectedCustomer !== undefined &&
-        <DayOfficeScheduler
+        <RoomScheduler
           customerName={selectedCustomer.name}
           rate={selectedCustomer.rate}
           credit={selectedCustomer.credit}
