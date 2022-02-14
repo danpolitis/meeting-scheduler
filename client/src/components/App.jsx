@@ -73,6 +73,14 @@ const App = () => {
             )
           })}
         </DropdownButton>
+        {selectedCustomer === undefined &&
+          <div style={{
+            textAlign: 'center',
+            margin: 'auto'
+          }}
+          >Select a customer to see their information.
+          </div>
+        }
         {selectedCustomer !== undefined &&
           <CustomerInfo customer={selectedCustomer}/>
         }
@@ -85,10 +93,27 @@ const App = () => {
             )
           })}
         </DropdownButton>
+        {selectedRoom === undefined &&
+          <div style={{
+            textAlign: 'center',
+            margin: 'auto'
+          }}
+          >Select a room to see information about it.
+          </div>
+        }
         {selectedRoom !== undefined &&
           <RoomInfo room={selectedRoom}/>
         }
       </Container>
+      {(selectedRoom === undefined || selectedCustomer === undefined) &&
+          <div style={{
+            textAlign: 'center',
+            margin: 'auto',
+            marginTop: '100px'
+          }}
+          >Select a room and a customer to see the scheduler.
+          </div>
+        }
       {
         selectedRoom !== undefined && selectedCustomer !== undefined &&
         <RoomScheduler
