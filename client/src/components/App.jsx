@@ -6,6 +6,7 @@ import { Navbar, Container, DropdownButton, Dropdown} from 'react-bootstrap'
 import CustomerInfo from './CustomerInfo.jsx'
 import RoomInfo from './RoomInfo.jsx'
 import 'bootstrap/dist/css/bootstrap.min.css';
+import '../styles.css'
 
 const App = () => {
   const [customers, setCustomers] = useState([]);
@@ -64,7 +65,7 @@ const App = () => {
         Room Scheduler
       </h2>
       <Container>
-        <DropdownButton onSelect={handleCustomerSelect} variant="Secondary" title="Select Customer">
+        <DropdownButton onSelect={handleCustomerSelect} variant="success" title="Select Customer" >
           {customers.map((customer) => {
             return(
               <Dropdown.Item eventKey={JSON.stringify(customer)} key={customer.id}>
@@ -84,7 +85,7 @@ const App = () => {
         {selectedCustomer !== undefined &&
           <CustomerInfo customer={selectedCustomer}/>
         }
-        <DropdownButton onSelect={handleRoomSelect} variant="Secondary" title="Select Room">
+        <DropdownButton onSelect={handleRoomSelect} variant="success" title="Select Room">
           {rooms.map((room) => {
             return(
               <Dropdown.Item eventKey={JSON.stringify(room)} key={room.id}>

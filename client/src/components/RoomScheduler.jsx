@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import DataSource from 'devextreme/data/data_source';
 import CustomStore from 'devextreme/data/custom_store';
-import Scheduler, { Editing } from 'devextreme-react/scheduler';
+import Scheduler, { Editing, View } from 'devextreme-react/scheduler';
 import axios from 'axios';
 
 function handleErrors(response) {
@@ -125,6 +125,7 @@ class RoomScheduler extends React.Component {
     e.appointmentData.creditsUsed = price[4];
     e.appointmentData.text = this.props.customerName;
     e.appointmentData.roomId = this.props.roomId;
+    e.appointmentData.allDay=false;
   }
 
   onAppointmentAdded = (e) => {
@@ -156,7 +157,7 @@ class RoomScheduler extends React.Component {
           onAppointmentAdding={this.onAppointmentAdding}
           onAppointmentAdded={this.onAppointmentAdded}
           onAppointmentDeleted={this.onAppointmentDeleted}
-          currentView={'week'}
+          defaultCurrentView={'week'}
           width={'70%'}
           style={{ margin: 'auto' }}
         >
