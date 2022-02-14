@@ -16,3 +16,6 @@
  .dx-scheduler-date-time-indicator::before {
    color: #198754;
  }
+ .dx-scheduler-time-panel-cell.dx-scheduler-time-panel-current-time-cell{
+   color:#198754;
+ }
