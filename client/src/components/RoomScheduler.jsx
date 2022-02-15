@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import DataSource from 'devextreme/data/data_source';
 import CustomStore from 'devextreme/data/custom_store';
 import Scheduler, { Editing, View } from 'devextreme-react/scheduler';
+import { Button } from "devextreme/ui/button";
 import axios from 'axios';
 
 function handleErrors(response) {
@@ -11,6 +12,7 @@ function handleErrors(response) {
   return response;
 }
 
+//maps CRUD operation to node api
 const meetings = new DataSource({
   key: 'id',
   loadMode: 'raw',
@@ -64,7 +66,21 @@ const remainingCredit = (price, credit) => {
 }
 
 const calculateHours = (endDate, startDate) => {
-  return ((new Date(endDate)- new Date(startDate))/3600000)
+  let eDate = new Date(endDate);
+  let sDate = new Date(startDate);
+  let daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30 ,31];
+
+  //calculate hours if start/end are seperate months else if start/end are different days else same day
+  if (eDate.getMonth() !== sDate.getMonth()){
+    let totalDays = daysInMonth[sDate.getMonth()] - sDate.getDate() + eDate.getDate()
+    return ((new Date(endDate)- new Date(startDate))/3600000 - (15 * totalDays))
+  } else if (eDate.getDate() !== sDate.getDate()) {
+    let totalDays = eDate.getDate() - sDate.getDate()
+    return ((new Date(endDate)- new Date(startDate))/3600000 - (15 * totalDays))
+  } else {
+    return ((new Date(endDate)- new Date(startDate))/3600000)
+  }
+
 }
 
 const calculatePrice = (hours, rate, credit, freeHours, roomType, halfHourlyRate, halfDayRate, fullDayRate) => {
@@ -110,39 +126,48 @@ class RoomScheduler extends React.Component {
   }
 
   onAppointmentFormOpening =  (e) => {
-    if (e.form.itemOption('mainGroup').items[2].items[1].visible === undefined) {
-      e.component.showAppointmentPopup(e.appointmentData)
+    //redefines form without default recurrence switch and subject lines
+    const form = e.form
+    let mainGroupItems = form.option('items')[0].items;
+    if (mainGroupItems.length > 5) {
+      mainGroupItems.shift();
+      mainGroupItems[1].items.pop();
+      form.option('items', mainGroupItems)
     }
-    const mainGroup =  e.form.itemOption('mainGroup')
-    mainGroup.items[2].items[1].visible = false;
 
     if (e.component._preparedItems !== undefined) {
       for (var i = 0; i < e.component._preparedItems.length; i++) {
         let currentStartDate = new Date(e.component._preparedItems[i].rawAppointment.startDate)
         let newAppointmentDate = new Date(e.appointmentData.startDate)
+        //checks for conflicts
         if ((e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.startDate) && (e.appointmentData.endDate > e.component._preparedItems[i].rawAppointment.startDate)) {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
         }
+        //checks for conflicts
         if (e.appointmentData.startDate > e.component._preparedItems[i].rawAppointment. startDate && e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.endDate) {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
         }
+        //checks for conflicts with all day appointments
         if ((currentStartDate.getDate() === newAppointmentDate.getDate() && currentStartDate.getMonth() === newAppointmentDate.getMonth() && currentStartDate.getYear() === newAppointmentDate.getYear()) && (e.component._preparedItems[i].allDay === true)) {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
         }
       }
     }
-
+    //adds the appointment information to the appointment form
     if (e.appointmentData.hoursUsed !== undefined) {
       e.popup.option('showTitle', true);
       e.popup.option('titleTemplate', `Final Price: $${e.appointmentData.price}, Free Hours Used: ${e.appointmentData.hoursUsed} hours, Credit Used: $${e.appointmentData.creditsUsed}`)
     } else {
       let price;
+      //calculates price for all day else calculates normally
       if (e.appointmentData.allDay === true){
         price =(calculatePrice(9, this.props.rate, this.props.credit, this.props.freeHours, this.props.roomType, this.props.halfHourlyRate, this.props.halfDayRate, this.props.fullDayRate))
       } else {
+        let sDate = new Date(e.appointmentData.startDate)
+        let eDate = new Date(e.appointmentData.endDate)
         price =(calculatePrice(calculateHours(e.appointmentData.endDate, e.appointmentData.startDate), this.props.rate, this.props.credit, this.props.freeHours, this.props.roomType, this.props.halfHourlyRate, this.props.halfDayRate, this.props.fullDayRate))
       }
       e.popup.option('showTitle', true);
@@ -151,12 +176,14 @@ class RoomScheduler extends React.Component {
   }
 
   onAppointmentAdding = (e) => {
+    //ensures that appointments are booked in 30 minute intervals
+    console.log(e.appointmentData)
     if (calculateHours(e.appointmentData.endDate, e.appointmentData.startDate) % 0.5 !== 0 && this.props.roomType === 'meeting') {
       e.cancel = true;
       alert('Meeting room appointments must be booked in 30 minute increments.')
     }
-
-    if (e.appointmentData.allDay !== true) {
+    //ensures that appointments start between 8:00 and 5:00
+    if (e.appointmentData.allDay === false) {
       let sDate = new Date(e.appointmentData.startDate)
       let eDate = new Date(e.appointmentData.endDate)
       if (sDate.getHours() < 8 || sDate.getHours() >= 17 ||eDate.getHours() <= 8 || eDate.getHours() > 17 || (eDate.getHours() === 17 && eDate.getMinutes() > 0)) {
@@ -169,14 +196,17 @@ class RoomScheduler extends React.Component {
       for (var i = 0; i < e.component._preparedItems.length; i++) {
         let currentStartDate = new Date(e.component._preparedItems[i].rawAppointment.startDate)
         let newAppointmentDate = new Date(e.appointmentData.startDate)
+        //checks for conflicts
         if ((e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.startDate) && (e.appointmentData.endDate > e.component._preparedItems[i].rawAppointment.startDate)) {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
         }
+        //checks for conflicts
         if (e.appointmentData.startDate > e.component._preparedItems[i].rawAppointment. startDate && e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.endDate) {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
         }
+        //checks for all day conflicts
         if ((currentStartDate.getDate() === newAppointmentDate.getDate() && currentStartDate.getMonth() === newAppointmentDate.getMonth() && currentStartDate.getYear() === newAppointmentDate.getYear()) && (e.component._preparedItems[i].allDay === true)) {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
@@ -185,7 +215,7 @@ class RoomScheduler extends React.Component {
     }
 
     let start = new Date(e.appointmentData.startDate)
-
+    //ensures that office appointments either start at 8:00am or 12:30pm
     if (this.props.roomType === 'office' && e.appointmentData.allDay === false) {
       if (start.getHours() !== 8) {
         if (start.getHours() !== 12 || start.getMinutes() !== 30) {
@@ -200,47 +230,47 @@ class RoomScheduler extends React.Component {
         }
       }
     }
-
+    //ensures that office appointments are only booked in half day increments
     if (calculateHours(e.appointmentData.endDate, e.appointmentData.startDate) % 4.5 !== 0 && this.props.roomType === 'office') {
       e.cancel = true;
       alert('Day office appointments must be booked for either a half day(starting at 8 or 12:30) or a full day(starting at 8).')
     }
-
+    //calculates price for allDay else calculates normal price
     let price;
     if (e.appointmentData.allDay === true){
       price =(calculatePrice(9, this.props.rate, this.props.credit, this.props.freeHours, this.props.roomType, this.props.halfHourlyRate, this.props.halfDayRate, this.props.fullDayRate))
     } else {
       price =(calculatePrice(calculateHours(e.appointmentData.endDate, e.appointmentData.startDate), this.props.rate, this.props.credit, this.props.freeHours, this.props.roomType, this.props.halfHourlyRate, this.props.halfDayRate, this.props.fullDayRate));
     }
+    //assigns data to appointment object for storage in DB
     e.appointmentData.price = price[0];
     e.appointmentData.hoursUsed = price[3];
     e.appointmentData.creditsUsed = price[4];
     e.appointmentData.text = this.props.customerName;
     e.appointmentData.roomId = this.props.roomId;
   }
-
+  //reload meetings after adding appointments
   onAppointmentAdded = (e) => {
     meetings.reload()
     this.props.getCustomers()
   }
-
+  //relaod meetings after deleting appointments
   onAppointmentDeleted = (e) => {
     meetings.reload()
     this.props.getCustomers()
   }
-
+  //reload meetings when user selects a different room
   componentDidUpdate(prevProps) {
     if (this.props.roomId !== prevProps.roomId) {
       meetings.reload()
     }
   }
 
-
-
   render() {
     return (
       <div id="schedulerWrapper" roomid={this.props.roomId}>
         <Scheduler id="roomScheduler"
+          views = {['day', 'week', 'month']}
           dataSource={meetings}
           maxAppointmentsPerCell={1}
           endDayHour={17}
