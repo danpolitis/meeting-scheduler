@@ -105,9 +105,17 @@ class RoomScheduler extends React.Component {
     this.state = {
       meetingInterval: 0
     }
+
+    this.onAppointmentFormOpening = this.onAppointmentFormOpening.bind(this)
   }
 
-  onAppointmentFormOpening = (e) => {
+  onAppointmentFormOpening =  (e) => {
+    if (e.form.itemOption('mainGroup').items[2].items[1].visible === undefined) {
+      e.component.showAppointmentPopup(e.appointmentData)
+    }
+    const mainGroup =  e.form.itemOption('mainGroup')
+    mainGroup.items[2].items[1].visible = false;
+
     if (e.component._preparedItems !== undefined) {
       for (var i = 0; i < e.component._preparedItems.length; i++) {
         let currentStartDate = new Date(e.component._preparedItems[i].rawAppointment.startDate)
@@ -226,6 +234,8 @@ class RoomScheduler extends React.Component {
       meetings.reload()
     }
   }
+
+
 
   render() {
     return (
