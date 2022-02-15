@@ -108,18 +108,70 @@ class RoomScheduler extends React.Component {
   }
 
   onAppointmentFormOpening = (e) => {
+    if (e.component._preparedItems !== undefined) {
+      for (var i = 0; i < e.component._preparedItems.length; i++) {
+        if ((e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.startDate) && (e.appointmentData.endDate > e.component._preparedItems[i].rawAppointment.startDate)) {
+          e.cancel = true;
+        }
+        if (e.appointmentData.startDate > e.component._preparedItems[i].rawAppointment. startDate && e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.endDate) {
+          e.cancel = true;
+        }
+      }
+      if (e.cancel === true) {
+        alert('An appointment already exists at that time. Please select a different time.')
+      }
+    }
+
     if (e.appointmentData.hoursUsed !== undefined) {
       e.popup.option('showTitle', true);
       e.popup.option('titleTemplate', `Final Price: $${e.appointmentData.price}, Free Hours Used: ${e.appointmentData.hoursUsed} hours, Credit Used: $${e.appointmentData.creditsUsed}`)
     } else {
-      let price =(calculatePrice(calculateHours(e.appointmentData.endDate, e.appointmentData.startDate), this.props.rate, this.props.credit, this.props.freeHours, this.props.roomType, this.props.halfHourlyRate, this.props.halfDayRate, this.props.fullDayRate))
+      let price;
+      if (e.appointmentData.allDay === true){
+        price =(calculatePrice(9, this.props.rate, this.props.credit, this.props.freeHours, this.props.roomType, this.props.halfHourlyRate, this.props.halfDayRate, this.props.fullDayRate))
+      } else {
+        price =(calculatePrice(calculateHours(e.appointmentData.endDate, e.appointmentData.startDate), this.props.rate, this.props.credit, this.props.freeHours, this.props.roomType, this.props.halfHourlyRate, this.props.halfDayRate, this.props.fullDayRate))
+      }
       e.popup.option('showTitle', true);
       e.popup.option('titleTemplate', `Final Price: $${price[0]}, Free Hours Remaining: ${price[1]} hours, Credit Remaining: $${price[2]}, Free Hours Used: ${price[3]} hours, Credit Used: $${price[4]}`)
     }
   }
 
   onAppointmentAdding = (e) => {
-    let price =(calculatePrice(calculateHours(e.appointmentData.endDate, e.appointmentData.startDate), this.props.rate, this.props.credit, this.props.freeHours, this.props.roomType, this.props.halfHourlyRate, this.props.halfDayRate, this.props.fullDayRate));
+    if (calculateHours(e.appointmentData.endDate, e.appointmentData.startDate) % 0.5 !== 0 && this.props.roomType === 'meeting') {
+      e.cancel = true;
+      alert('Meeting room appointments must be booked in 30 minute increments.')
+    }
+
+    let start = new Date(e.appointmentData.startDate)
+
+    if (this.props.roomType === 'office' && e.appointmentData.allDay === false) {
+      console.log(start.getHours(), start.getMinutes())
+      if (start.getHours() !== 8) {
+        if (start.getHours() !== 12 || start.getMinutes() !== 30) {
+          e.cancel = true;
+          alert('Day office appointments must start at 8:00 am or 12:30 pm.')
+        }
+      }
+      if (start.getHours() !== 12) {
+        if (start.getHours() !== 8 || start.getMinutes() !== 0) {
+          e.cancel = true;
+          alert('Day office appointments must start at 8:00 am or 12:30 pm.')
+        }
+      }
+    }
+
+    if (calculateHours(e.appointmentData.endDate, e.appointmentData.startDate) % 4.5 !== 0 && this.props.roomType === 'office') {
+      e.cancel = true;
+      alert('Day office appointments must be booked for either a half day(starting at 8 or 12:30) or a full day(starting at 8).')
+    }
+
+    let price;
+    if (e.appointmentData.allDay === true){
+      price =(calculatePrice(9, this.props.rate, this.props.credit, this.props.freeHours, this.props.roomType, this.props.halfHourlyRate, this.props.halfDayRate, this.props.fullDayRate))
+    } else {
+      price =(calculatePrice(calculateHours(e.appointmentData.endDate, e.appointmentData.startDate), this.props.rate, this.props.credit, this.props.freeHours, this.props.roomType, this.props.halfHourlyRate, this.props.halfDayRate, this.props.fullDayRate));
+    }
     e.appointmentData.price = price[0];
     e.appointmentData.hoursUsed = price[3];
     e.appointmentData.creditsUsed = price[4];

@@ -12,7 +12,7 @@ const RoomInfo = ({ room }) => {
       <tbody>
         <tr>
           <td>Half-Hourly Rate</td>
-          <td>{room.half_hourly_rate}</td>
+          <td>${room.half_hourly_rate}</td>
         </tr>
       </tbody>
       }
@@ -20,11 +20,11 @@ const RoomInfo = ({ room }) => {
       <tbody>
         <tr>
           <td>Half Day Rate</td>
-          <td>{room.half_day_rate}</td>
+          <td>${room.half_day_rate}</td>
         </tr>
         <tr>
           <td>Full Day Rate</td>
-          <td>{room.full_day_rate}</td>
+          <td>${room.full_day_rate}</td>
         </tr>
       </tbody>
       }
