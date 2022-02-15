@@ -114,16 +114,16 @@ class RoomScheduler extends React.Component {
         let newAppointmentDate = new Date(e.appointmentData.startDate)
         if ((e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.startDate) && (e.appointmentData.endDate > e.component._preparedItems[i].rawAppointment.startDate)) {
           e.cancel = true;
+          alert('An appointment already exists at that time. Please select a different time.')
         }
         if (e.appointmentData.startDate > e.component._preparedItems[i].rawAppointment. startDate && e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.endDate) {
           e.cancel = true;
+          alert('An appointment already exists at that time. Please select a different time.')
         }
         if ((currentStartDate.getDate() === newAppointmentDate.getDate() && currentStartDate.getMonth() === newAppointmentDate.getMonth() && currentStartDate.getYear() === newAppointmentDate.getYear()) && (e.component._preparedItems[i].allDay === true)) {
           e.cancel = true;
+          alert('An appointment already exists at that time. Please select a different time.')
         }
-      }
-      if (e.cancel === true) {
-        alert('An appointment already exists at that time. Please select a different time.')
       }
     }
 
@@ -147,6 +147,12 @@ class RoomScheduler extends React.Component {
       e.cancel = true;
       alert('Meeting room appointments must be booked in 30 minute increments.')
     }
+    let sDate = new Date(e.appointmentData.startDate)
+    let eDate = new Date(e.appointmentData.endDate)
+    if (sDate.getHours() < 8 || sDate.getHours() >= 17 ||eDate.getHours() <= 8 || eDate.getHours() > 17 || (eDate.getHours() === 17 && eDate.getMinutes() > 0)) {
+      e.cancel = true;
+      alert('Appointments can only be booked between 8:00 am and 5:00 pm.')
+    }
 
     if (e.component._preparedItems !== undefined) {
       for (var i = 0; i < e.component._preparedItems.length; i++) {
@@ -154,16 +160,16 @@ class RoomScheduler extends React.Component {
         let newAppointmentDate = new Date(e.appointmentData.startDate)
         if ((e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.startDate) && (e.appointmentData.endDate > e.component._preparedItems[i].rawAppointment.startDate)) {
           e.cancel = true;
+          alert('An appointment already exists at that time. Please select a different time.')
         }
         if (e.appointmentData.startDate > e.component._preparedItems[i].rawAppointment. startDate && e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.endDate) {
           e.cancel = true;
+          alert('An appointment already exists at that time. Please select a different time.')
         }
         if ((currentStartDate.getDate() === newAppointmentDate.getDate() && currentStartDate.getMonth() === newAppointmentDate.getMonth() && currentStartDate.getYear() === newAppointmentDate.getYear()) && (e.component._preparedItems[i].allDay === true)) {
           e.cancel = true;
+          alert('An appointment already exists at that time. Please select a different time.')
         }
-      }
-      if (e.cancel === true) {
-        alert('An appointment already exists at that time. Please select a different time.')
       }
     }
 
