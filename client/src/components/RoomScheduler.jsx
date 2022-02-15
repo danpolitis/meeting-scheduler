@@ -108,12 +108,19 @@ class RoomScheduler extends React.Component {
   }
 
   onAppointmentFormOpening = (e) => {
+    let start = new Date(e.component._preparedItems[0].rawAppointment.startDate)
+
     if (e.component._preparedItems !== undefined) {
       for (var i = 0; i < e.component._preparedItems.length; i++) {
+        let currentStartDate = new Date(e.component._preparedItems[i].rawAppointment.startDate)
+        let newAppointmentDate = new Date(e.appointmentData.startDate)
         if ((e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.startDate) && (e.appointmentData.endDate > e.component._preparedItems[i].rawAppointment.startDate)) {
           e.cancel = true;
         }
         if (e.appointmentData.startDate > e.component._preparedItems[i].rawAppointment. startDate && e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.endDate) {
+          e.cancel = true;
+        }
+        if ((currentStartDate.getDate() === newAppointmentDate.getDate() && currentStartDate.getMonth() === newAppointmentDate.getMonth() && currentStartDate.getYear() === newAppointmentDate.getYear()) && (e.component._preparedItems[i].allDay === true)) {
           e.cancel = true;
         }
       }
@@ -145,10 +152,15 @@ class RoomScheduler extends React.Component {
 
     if (e.component._preparedItems !== undefined) {
       for (var i = 0; i < e.component._preparedItems.length; i++) {
+        let currentStartDate = new Date(e.component._preparedItems[i].rawAppointment.startDate)
+        let newAppointmentDate = new Date(e.appointmentData.startDate)
         if ((e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.startDate) && (e.appointmentData.endDate > e.component._preparedItems[i].rawAppointment.startDate)) {
           e.cancel = true;
         }
         if (e.appointmentData.startDate > e.component._preparedItems[i].rawAppointment. startDate && e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.endDate) {
+          e.cancel = true;
+        }
+        if ((currentStartDate.getDate() === newAppointmentDate.getDate() && currentStartDate.getMonth() === newAppointmentDate.getMonth() && currentStartDate.getYear() === newAppointmentDate.getYear()) && (e.component._preparedItems[i].allDay === true)) {
           e.cancel = true;
         }
       }
@@ -160,7 +172,6 @@ class RoomScheduler extends React.Component {
     let start = new Date(e.appointmentData.startDate)
 
     if (this.props.roomType === 'office' && e.appointmentData.allDay === false) {
-      console.log(start.getHours(), start.getMinutes())
       if (start.getHours() !== 8) {
         if (start.getHours() !== 12 || start.getMinutes() !== 30) {
           e.cancel = true;
