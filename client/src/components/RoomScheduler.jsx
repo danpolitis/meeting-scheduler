@@ -143,6 +143,20 @@ class RoomScheduler extends React.Component {
       alert('Meeting room appointments must be booked in 30 minute increments.')
     }
 
+    if (e.component._preparedItems !== undefined) {
+      for (var i = 0; i < e.component._preparedItems.length; i++) {
+        if ((e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.startDate) && (e.appointmentData.endDate > e.component._preparedItems[i].rawAppointment.startDate)) {
+          e.cancel = true;
+        }
+        if (e.appointmentData.startDate > e.component._preparedItems[i].rawAppointment. startDate && e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.endDate) {
+          e.cancel = true;
+        }
+      }
+      if (e.cancel === true) {
+        alert('An appointment already exists at that time. Please select a different time.')
+      }
+    }
+
     let start = new Date(e.appointmentData.startDate)
 
     if (this.props.roomType === 'office' && e.appointmentData.allDay === false) {
