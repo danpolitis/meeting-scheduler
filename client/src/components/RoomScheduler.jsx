@@ -147,11 +147,14 @@ class RoomScheduler extends React.Component {
       e.cancel = true;
       alert('Meeting room appointments must be booked in 30 minute increments.')
     }
-    let sDate = new Date(e.appointmentData.startDate)
-    let eDate = new Date(e.appointmentData.endDate)
-    if (sDate.getHours() < 8 || sDate.getHours() >= 17 ||eDate.getHours() <= 8 || eDate.getHours() > 17 || (eDate.getHours() === 17 && eDate.getMinutes() > 0)) {
-      e.cancel = true;
-      alert('Appointments can only be booked between 8:00 am and 5:00 pm.')
+
+    if (e.appointmentData.allDay !== true) {
+      let sDate = new Date(e.appointmentData.startDate)
+      let eDate = new Date(e.appointmentData.endDate)
+      if (sDate.getHours() < 8 || sDate.getHours() >= 17 ||eDate.getHours() <= 8 || eDate.getHours() > 17 || (eDate.getHours() === 17 && eDate.getMinutes() > 0)) {
+        e.cancel = true;
+        alert('Appointments can only be booked between 8:00 am and 5:00 pm.')
+      }
     }
 
     if (e.component._preparedItems !== undefined) {
