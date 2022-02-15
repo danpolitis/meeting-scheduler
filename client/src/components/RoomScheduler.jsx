@@ -108,8 +108,6 @@ class RoomScheduler extends React.Component {
   }
 
   onAppointmentFormOpening = (e) => {
-    let start = new Date(e.component._preparedItems[0].rawAppointment.startDate)
-
     if (e.component._preparedItems !== undefined) {
       for (var i = 0; i < e.component._preparedItems.length; i++) {
         let currentStartDate = new Date(e.component._preparedItems[i].rawAppointment.startDate)
