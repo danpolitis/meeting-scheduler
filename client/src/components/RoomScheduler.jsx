@@ -149,6 +149,10 @@ class RoomScheduler extends React.Component {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
         }
+        if (e.appointmentData.startDate === e.component._preparedItems[i].rawAppointment. startDate) {
+          e.cancel = true;
+          alert('An appointment already exists at that time. Please select a different time.')
+        }
         //checks for conflicts with all day appointments
         if ((currentStartDate.getDate() === newAppointmentDate.getDate() && currentStartDate.getMonth() === newAppointmentDate.getMonth() && currentStartDate.getYear() === newAppointmentDate.getYear()) && (e.component._preparedItems[i].allDay === true)) {
           e.cancel = true;
@@ -203,6 +207,10 @@ class RoomScheduler extends React.Component {
         }
         //checks for conflicts
         if (e.appointmentData.startDate > e.component._preparedItems[i].rawAppointment. startDate && e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.endDate) {
+          e.cancel = true;
+          alert('An appointment already exists at that time. Please select a different time.')
+        }
+        if (e.appointmentData.startDate === e.component._preparedItems[i].rawAppointment. startDate) {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
         }
