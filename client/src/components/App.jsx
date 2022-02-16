@@ -13,6 +13,8 @@ const App = () => {
   const [rooms, setRooms] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState();
   const [selectedRoom, setSelectedRoom]= useState();
+  const [customerTitle, setCustomerTitle] = useState('Select Customer');
+  const [roomTitle, setRoomTitle] = useState('Select Room')
 
   const getCustomers = () => {
     axios.get('/customers')
@@ -54,9 +56,11 @@ const App = () => {
 
   const handleCustomerSelect = (e) => {
     setSelectedCustomer(JSON.parse(e))
+    setCustomerTitle(JSON.parse(e).name)
   }
   const handleRoomSelect = (e) => {
     setSelectedRoom(JSON.parse(e))
+    setRoomTitle(JSON.parse(e).name)
   }
 
   return (
@@ -65,7 +69,7 @@ const App = () => {
         Room Scheduler
       </h2>
       <Container>
-        <DropdownButton onSelect={handleCustomerSelect} variant="success" title="Select Customer" >
+        <DropdownButton onSelect={handleCustomerSelect} variant="success" title={customerTitle} >
           {customers.map((customer) => {
             return(
               <Dropdown.Item eventKey={JSON.stringify(customer)} key={customer.id}>
@@ -85,7 +89,7 @@ const App = () => {
         {selectedCustomer !== undefined &&
           <CustomerInfo customer={selectedCustomer}/>
         }
-        <DropdownButton onSelect={handleRoomSelect} variant="success" title="Select Room">
+        <DropdownButton onSelect={handleRoomSelect} variant="success" title={roomTitle}>
           {rooms.map((room) => {
             return(
               <Dropdown.Item eventKey={JSON.stringify(room)} key={room.id}>
