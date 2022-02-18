@@ -128,6 +128,7 @@ class RoomScheduler extends React.Component {
   onAppointmentFormOpening =  (e) => {
     e.form.option('items[0].items[1].items[0].editorOptions.type', 'datetime')
     e.form.option('items[0].items[1].items[2].editorOptions.type', 'datetime')
+    e.form.option('items[0].items[2].items[0].visible', false)
     e.form.option('items[0].items[2].items[1].visible', false)
     e.form.option('items[0].items[0].visible', false)
 
