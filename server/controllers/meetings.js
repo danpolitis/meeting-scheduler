@@ -32,7 +32,7 @@ module.exports = {
           .catch((err) => {
             console.log(err)
           })
-        res.sendStatus(201);
+        res.send(results).status(201);
       })
       .catch((err) => {
         res.sendStatus(400);

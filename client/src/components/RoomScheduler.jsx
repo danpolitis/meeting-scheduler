@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import React, { useState, setState } from 'react';
 import DataSource from 'devextreme/data/data_source';
 import CustomStore from 'devextreme/data/custom_store';
 import Scheduler, { Editing, View } from 'devextreme-react/scheduler';
-import { Button } from "devextreme/ui/button";
+import AppointmentTemplate from './AppointmentTemplate.jsx'
 import axios from 'axios';
 
 function handleErrors(response) {
@@ -118,50 +118,58 @@ const calculatePrice = (hours, rate, credit, freeHours, roomType, halfHourlyRate
 class RoomScheduler extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      meetingInterval: 0
-    }
 
     this.onAppointmentFormOpening = this.onAppointmentFormOpening.bind(this)
   }
 
   onAppointmentFormOpening =  (e) => {
-    //redefines form without default recurrence switch and subject lines
-    const form = e.form
-    let mainGroupItems = form.option('items')[0].items;
-    if (mainGroupItems.length > 5) {
-      mainGroupItems.shift();
-      mainGroupItems[1].items.pop();
-      form.option('items', mainGroupItems)
-    }
+    e.form.option('items[0].items[1].items[0].editorOptions.type', 'datetime')
+    e.form.option('items[0].items[1].items[2].editorOptions.type', 'datetime')
+    e.form.option('items[0].items[2].items[1].visible', false)
+    e.form.option('items[0].items[0].visible', false)
+    console.log(e.appointmentData)
 
-    if (e.component._preparedItems !== undefined) {
+    //checks for conflicts if other meetings exist and the formOpening event is not for an existing appointment
+    if (e.component._preparedItems !== undefined && e.form.option('readOnly') === false) {
+
       for (var i = 0; i < e.component._preparedItems.length; i++) {
         let currentStartDate = new Date(e.component._preparedItems[i].rawAppointment.startDate)
+        let currentEndDate = new Date(e.component._preparedItems[i].rawAppointment.endDate)
         let newAppointmentDate = new Date(e.appointmentData.startDate)
         //checks for conflicts
         if ((e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.startDate) && (e.appointmentData.endDate > e.component._preparedItems[i].rawAppointment.startDate)) {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
+          break;
         }
         //checks for conflicts
-        if (e.appointmentData.startDate > e.component._preparedItems[i].rawAppointment. startDate && e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.endDate) {
+        if (e.appointmentData.startDate > e.component._preparedItems[i].rawAppointment.startDate && e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.endDate) {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
+          break;
         }
-        if (e.appointmentData.startDate === e.component._preparedItems[i].rawAppointment. startDate) {
+        if (e.appointmentData.startDate === e.component._preparedItems[i].rawAppointment.startDate) {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
+          break;
         }
+
         //checks for conflicts with all day appointments
         if ((currentStartDate.getDate() === newAppointmentDate.getDate() && currentStartDate.getMonth() === newAppointmentDate.getMonth() && currentStartDate.getYear() === newAppointmentDate.getYear()) && (e.component._preparedItems[i].allDay === true)) {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
+          break;
+        }
+        if ((currentEndDate.getDate() === newAppointmentDate.getDate() && currentEndDate.getMonth() === newAppointmentDate.getMonth() && currentEndDate.getYear() === newAppointmentDate.getYear()) && (e.component._preparedItems[i].allDay === true)) {
+          e.cancel = true;
+          alert('An appointment already exists at that time. Please select a different time.')
+          break;
         }
       }
     }
     //adds the appointment information to the appointment form
     if (e.appointmentData.hoursUsed !== undefined) {
+      console.log(2)
       e.popup.option('showTitle', true);
       e.popup.option('titleTemplate', `Final Price: $${e.appointmentData.price}, Free Hours Used: ${e.appointmentData.hoursUsed} hours, Credit Used: $${e.appointmentData.creditsUsed}`)
     } else {
@@ -181,7 +189,6 @@ class RoomScheduler extends React.Component {
 
   onAppointmentAdding = (e) => {
     //ensures that appointments are booked in 30 minute intervals
-    console.log(e.appointmentData)
     if (calculateHours(e.appointmentData.endDate, e.appointmentData.startDate) % 0.5 !== 0 && this.props.roomType === 'meeting') {
       e.cancel = true;
       alert('Meeting room appointments must be booked in 30 minute increments.')
@@ -190,7 +197,7 @@ class RoomScheduler extends React.Component {
     if (e.appointmentData.allDay === false) {
       let sDate = new Date(e.appointmentData.startDate)
       let eDate = new Date(e.appointmentData.endDate)
-      if (sDate.getHours() < 8 || sDate.getHours() >= 17 ||eDate.getHours() <= 8 || eDate.getHours() > 17 || (eDate.getHours() === 17 && eDate.getMinutes() > 0)) {
+      if (sDate.getHours() < 8 || sDate.getHours() >= 17 || eDate.getHours() < 8 || eDate.getHours() > 17 || (eDate.getHours() === 17 && eDate.getMinutes() > 0)) {
         e.cancel = true;
         alert('Appointments can only be booked between 8:00 am and 5:00 pm.')
       }
@@ -204,20 +211,24 @@ class RoomScheduler extends React.Component {
         if ((e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.startDate) && (e.appointmentData.endDate > e.component._preparedItems[i].rawAppointment.startDate)) {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
+          break;
         }
         //checks for conflicts
         if (e.appointmentData.startDate > e.component._preparedItems[i].rawAppointment. startDate && e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.endDate) {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
+          break;
         }
         if (e.appointmentData.startDate === e.component._preparedItems[i].rawAppointment. startDate) {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
+          break;
         }
         //checks for all day conflicts
         if ((currentStartDate.getDate() === newAppointmentDate.getDate() && currentStartDate.getMonth() === newAppointmentDate.getMonth() && currentStartDate.getYear() === newAppointmentDate.getYear()) && (e.component._preparedItems[i].allDay === true)) {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
+          break;
         }
       }
     }
@@ -277,23 +288,34 @@ class RoomScheduler extends React.Component {
   render() {
     return (
       <div id="schedulerWrapper" roomid={this.props.roomId}>
-        <Scheduler id="roomScheduler"
-          views = {['day', 'week', 'month']}
+        <Scheduler id='roomScheduler'
+          // views = {['day', 'week', 'month']}
           dataSource={meetings}
           maxAppointmentsPerCell={1}
           endDayHour={17}
           startDayHour={8}
-          cellDuration={this.props.roomType === 'office' ? 270 : 30}
           onAppointmentFormOpening={this.onAppointmentFormOpening}
           onAppointmentAdding={this.onAppointmentAdding}
           onAppointmentAdded={this.onAppointmentAdded}
           onAppointmentDeleted={this.onAppointmentDeleted}
+          appointmentComponent={AppointmentTemplate}
           defaultCurrentView={'week'}
           width={'70%'}
           style={{ margin: 'auto', paddingBottom: '100px' }}
         >
           <Editing
             allowUpdating={false}
+          />
+          <View
+            type="day"
+            cellDuration = {this.props.roomType === 'office' ? 270 : 30}
+          />
+          <View
+            type="week"
+            cellDuration={this.props.roomType === 'office' ? 270 : 30}
+          />
+          <View
+            type="month"
           />
         </Scheduler>
       </div>

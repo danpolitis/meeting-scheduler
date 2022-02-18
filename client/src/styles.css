@@ -19,3 +19,11 @@
  .dx-scheduler-time-panel-cell.dx-scheduler-time-panel-current-time-cell{
    color:#198754;
  }
+
+ .dx-scheduler-date-table-cell {
+   height: 75px;
+ }
+
+ .dx-scheduler-time-panel-cell {
+   height: 75px;
+ }
