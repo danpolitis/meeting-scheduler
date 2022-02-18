@@ -96,11 +96,14 @@ const calculatePrice = (hours, rate, credit, freeHours, roomType, halfHourlyRate
     }
   }
   if(roomType === 'office'){
-    if (hours/4.5 > 1) {
-      price = fullDayRate;
+    hours = hours / 4.5
+    console.log(hours)
+    if (hours % 2 === 0) {
+      price = hours/2 * 150
     } else {
-      price = halfDayRate;
+      price = Math.floor(hours/2) * 150 + 90
     }
+    console.log(price)
   } else {
     price = halfHourlyRate * hours/(.5)
   }
@@ -127,7 +130,6 @@ class RoomScheduler extends React.Component {
     e.form.option('items[0].items[1].items[2].editorOptions.type', 'datetime')
     e.form.option('items[0].items[2].items[1].visible', false)
     e.form.option('items[0].items[0].visible', false)
-    console.log(e.appointmentData)
 
     //checks for conflicts if other meetings exist and the formOpening event is not for an existing appointment
     if (e.component._preparedItems !== undefined && e.form.option('readOnly') === false) {
@@ -169,17 +171,18 @@ class RoomScheduler extends React.Component {
     }
     //adds the appointment information to the appointment form
     if (e.appointmentData.hoursUsed !== undefined) {
-      console.log(2)
       e.popup.option('showTitle', true);
       e.popup.option('titleTemplate', `Final Price: $${e.appointmentData.price}, Free Hours Used: ${e.appointmentData.hoursUsed} hours, Credit Used: $${e.appointmentData.creditsUsed}`)
     } else {
       let price;
+      let sDate = new Date(e.appointmentData.startDate)
+      let eDate = new Date(e.appointmentData.endDate)
       //calculates price for all day else calculates normally
       if (e.appointmentData.allDay === true){
-        price =(calculatePrice(9, this.props.rate, this.props.credit, this.props.freeHours, this.props.roomType, this.props.halfHourlyRate, this.props.halfDayRate, this.props.fullDayRate))
+        let allDayHours = (eDate.getDate() - sDate.getDate() + 1) * 9
+        price =(calculatePrice(allDayHours, this.props.rate, this.props.credit, this.props.freeHours, this.props.roomType, this.props.halfHourlyRate, this.props.halfDayRate, this.props.fullDayRate))
       } else {
-        let sDate = new Date(e.appointmentData.startDate)
-        let eDate = new Date(e.appointmentData.endDate)
+
         price =(calculatePrice(calculateHours(e.appointmentData.endDate, e.appointmentData.startDate), this.props.rate, this.props.credit, this.props.freeHours, this.props.roomType, this.props.halfHourlyRate, this.props.halfDayRate, this.props.fullDayRate))
       }
       e.popup.option('showTitle', true);
