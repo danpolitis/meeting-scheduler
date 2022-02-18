@@ -1,5 +1,5 @@
 .dx-item-content.dx-scheduler-appointment-content {
-  background-color: #198754;
+  padding: 0px;
  }
  .dx-scheduler-header-panel-cell.dx-scheduler-header-panel-current-time-cell::before {
    background-color: #198754;
@@ -26,4 +26,8 @@
 
  .dx-scheduler-time-panel-cell {
    height: 75px;
+ }
+ .header-element{
+   background-color: #198754;
+   color: white;
  }

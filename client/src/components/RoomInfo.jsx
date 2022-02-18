@@ -2,9 +2,18 @@ import React from 'react';
 import { Card, Table } from 'react-bootstrap'
 
 const RoomInfo = ({ room }) => {
+  let color;
+  if(room.name === 'Meeting Room 1') {
+    color = '#9E1400'
+  } else if (room.name ==='Meeting Room 2') {
+    color = '#362787'
+  } else {
+    color = '#240B07'
+  }
+
   return (
     <Card style={{ width: "60%", margin: "auto", textAlign:"center", marginBottom: '10px'}}>
-    <Card.Header  style={{ backgroundColor: 'white' }}>
+    <Card.Header  style={{ backgroundColor: color, color: 'white' }}>
       {room.name}
     </Card.Header>
     <Table striped bordered hover style={{ marginBottom: "0"}}>

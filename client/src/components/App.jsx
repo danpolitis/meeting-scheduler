@@ -65,7 +65,7 @@ const App = () => {
 
   return (
     <>
-      <h2 style={{ textAlign: 'center' }}>
+      <h2 className="header-element" style={{ textAlign: 'center', paddingBottom: '5px'}}>
         Room Scheduler
       </h2>
       <Container>
@@ -119,21 +119,24 @@ const App = () => {
           >Select a room and a customer to see the scheduler.
           </div>
         }
-      {
-        selectedRoom !== undefined && selectedCustomer !== undefined &&
-        <RoomScheduler
-          customerName={selectedCustomer.name}
-          rate={selectedCustomer.rate}
-          credit={selectedCustomer.credit}
-          freeHours={selectedCustomer.free_hours}
-          roomType={selectedRoom.type}
-          roomId={selectedRoom.id}
-          halfHourlyRate={selectedRoom.half_hourly_rate}
-          halfDayRate={selectedRoom.half_day_rate}
-          fullDayRate={selectedRoom.full_day_rate}
-          getCustomers={getCustomers}
-        />
-      }
+      <div>
+        {
+          selectedRoom !== undefined && selectedCustomer !== undefined &&
+          <RoomScheduler
+            customerName={selectedCustomer.name}
+            rate={selectedCustomer.rate}
+            credit={selectedCustomer.credit}
+            freeHours={selectedCustomer.free_hours}
+            color={selectedCustomer.color}
+            roomType={selectedRoom.type}
+            roomId={selectedRoom.id}
+            halfHourlyRate={selectedRoom.half_hourly_rate}
+            halfDayRate={selectedRoom.half_day_rate}
+            fullDayRate={selectedRoom.full_day_rate}
+            getCustomers={getCustomers}
+          />
+        }
+      </div>
     </>
   )
 }

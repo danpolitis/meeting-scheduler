@@ -2,9 +2,11 @@ import React from 'react'
 import { Card, ListGroup, Table } from 'react-bootstrap'
 
 const CustomerInfo = ({ customer }) => {
+  
+
   return (
       <Card style={{ width: "60%", margin: "auto", textAlign:"center", marginBottom: '10px'}}>
-        <Card.Header style={{ backgroundColor: 'white' }}>
+        <Card.Header style={{ backgroundColor: `${customer.color}`, color: 'white'}}>
           {customer.name}
         </Card.Header>
         <Table striped bordered hover style={{ marginBottom: "0"}}>

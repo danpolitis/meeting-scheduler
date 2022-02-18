@@ -1,7 +1,7 @@
 import React, { useState, setState } from 'react';
 import DataSource from 'devextreme/data/data_source';
 import CustomStore from 'devextreme/data/custom_store';
-import Scheduler, { Editing, View } from 'devextreme-react/scheduler';
+import Scheduler, { Editing, View, Resource } from 'devextreme-react/scheduler';
 import AppointmentTemplate from './AppointmentTemplate.jsx'
 import axios from 'axios';
 
@@ -270,6 +270,7 @@ class RoomScheduler extends React.Component {
     e.appointmentData.creditsUsed = price[4];
     e.appointmentData.text = this.props.customerName;
     e.appointmentData.roomId = this.props.roomId;
+    e.appointmentData.color = this.props.color;
   }
   //reload meetings after adding appointments
   onAppointmentAdded = (e) => {
@@ -287,7 +288,7 @@ class RoomScheduler extends React.Component {
       meetings.reload()
     }
   }
-
+  //style={{backgroundColor: '#198754', height: '100%', borderRadius: '0.5%'}}
   render() {
     return (
       <div id="schedulerWrapper" roomid={this.props.roomId}>
@@ -304,7 +305,7 @@ class RoomScheduler extends React.Component {
           appointmentComponent={AppointmentTemplate}
           defaultCurrentView={'week'}
           width={'70%'}
-          style={{ margin: 'auto', paddingBottom: '100px' }}
+          style={{ margin: 'auto', paddingBottom: '100px', paddingTop: '15px' }}
         >
           <Editing
             allowUpdating={false}

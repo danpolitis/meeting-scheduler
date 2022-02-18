@@ -17,9 +17,9 @@ module.exports = {
   },
 
   post: (req, res) => {
-    params = [req.body.text, req.body.allDay, req.body.startDate, req.body.endDate, req.body.price, req.body.description, req.body.hoursUsed, req.body.creditsUsed, req.body.roomId];
+    params = [req.body.text, req.body.allDay, req.body.startDate, req.body.endDate, req.body.price, req.body.description, req.body.hoursUsed, req.body.creditsUsed, req.body.roomId, req.body.color];
 
-    const queryString = 'INSERT INTO meetings (text, "allDay", "startDate", "endDate", price, description, "hoursUsed", "creditsUsed", "roomId") VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *';
+    const queryString = 'INSERT INTO meetings (text, "allDay", "startDate", "endDate", price, description, "hoursUsed", "creditsUsed", "roomId", color) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *';
 
     pool.query(queryString, params)
       .then((results) => {

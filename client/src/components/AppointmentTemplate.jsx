@@ -12,15 +12,18 @@ function formatAMPM(date) {
 }
 
 const AppointmentTemplate = (model) => {
+  console.log(model.data.targetedAppointmentData.color)
   return (
     <React.Fragment>
-      <div className="dx-scheduler-appointment-title">{model.data.targetedAppointmentData.text}</div>
-      <div className="dx-scheduler-appointment-content-details" >
-        <div className="dx-scheduler-appointment-content-date">
-          {formatAMPM(new Date(model.data.targetedAppointmentData.startDate))} - {formatAMPM(new Date(model.data.targetedAppointmentData.endDate))}
-        </div>
-        <div id='tooltip-price'>
-          Price: ${model.data.targetedAppointmentData.price}
+      <div style={{backgroundColor: `${model.data.targetedAppointmentData.color}`, padding: '5px', position: 'absolute', top: '0', right: '0', bottom: '0', left: '0'}}>
+        <div className="dx-scheduler-appointment-title">{model.data.targetedAppointmentData.text}</div>
+        <div className="dx-scheduler-appointment-content-details">
+          <div className="dx-scheduler-appointment-content-date">
+            {formatAMPM(new Date(model.data.targetedAppointmentData.startDate))} - {formatAMPM(new Date(model.data.targetedAppointmentData.endDate))}
+          </div>
+          <div id='tooltip-price'>
+            Price: ${model.data.targetedAppointmentData.price}
+          </div>
         </div>
       </div>
     </React.Fragment>
