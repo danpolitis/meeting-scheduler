@@ -12,7 +12,6 @@ function formatAMPM(date) {
 }
 
 const AppointmentTemplate = (model) => {
-  console.log(model.data.targetedAppointmentData.color)
   return (
     <React.Fragment>
       <div style={{backgroundColor: `${model.data.targetedAppointmentData.color}`, padding: '5px', position: 'absolute', top: '0', right: '0', bottom: '0', left: '0'}}>
