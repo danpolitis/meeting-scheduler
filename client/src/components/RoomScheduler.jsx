@@ -107,15 +107,19 @@ const calculatePrice = (hours, rate, credit, freeHours, roomType, halfHourlyRate
   } else {
     price = halfHourlyRate * hours/(.5)
   }
-  let leftoverCredit = remainingCredit(price, credit);
-  let creditUsed = credit - leftoverCredit;
-  if (price > credit) {
-    price = price - credit;
+  if (roomType === 'office') {
+    let leftoverCredit = remainingCredit(price, credit);
+    let creditUsed = credit - leftoverCredit;
+    if (price > credit) {
+      price = price - credit;
+    } else {
+      price = 0;
+    }
+    price = price * rate;
+    return [price, remainingFreeHours, leftoverCredit, hoursUsed, creditUsed];
   } else {
-    price = 0;
+    return [price, remainingFreeHours, credit, hoursUsed, 0]
   }
-  price = price * rate;
-  return [price, remainingFreeHours, leftoverCredit, hoursUsed, creditUsed];
 }
 
 class RoomScheduler extends React.Component {
