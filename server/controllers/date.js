@@ -2,7 +2,7 @@ const pool = require('../../db');
 
 module.exports = {
   get: (req, res) => {
-    const queryString = 'SELECT * FROM customers'
+    const queryString = 'SELECT * FROM date'
 
     pool.query(queryString)
       .then((results) => {
@@ -14,9 +14,11 @@ module.exports = {
   },
 
   put: (req, res) => {
-    const queryString = 'UPDATE customers SET credit = 50, free_hours = 5 WHERE id = 1'
+    let params = [req.body.month]
 
-    pool.query(queryString)
+    const queryString = 'UPDATE date SET month = $1 WHERE id = 1'
+
+    pool.query(queryString, params)
       .then((results) => {
         res.status(202).send(results.rows);
       })

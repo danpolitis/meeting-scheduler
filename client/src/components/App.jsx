@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios'
 import RoomScheduler from './RoomScheduler.jsx'
 import 'devextreme/dist/css/dx.light.css'
@@ -15,6 +15,37 @@ const App = () => {
   const [selectedRoom, setSelectedRoom]= useState();
   const [customerTitle, setCustomerTitle] = useState('Select Customer');
   const [roomTitle, setRoomTitle] = useState('Select Room')
+  const [currentMonth, setCurrentMonth] = useState()
+  const isMounted = useRef(false);
+
+  const getMonth = () => {
+    axios.get('/date')
+    .then(({ data }) => {
+      setCurrentMonth(data[0].month)
+      return data
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+  }
+
+  const changeMonth = (month) => {
+    axios.put('/date', {month: month})
+    .then(() => {
+      axios.put('/customers')
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+  }
+
+  const checkForNewMonth = (month) => {
+    let newDate = new Date()
+    let monthOnRender = newDate.getMonth()
+    if (month !== JSON.stringify(monthOnRender)) {
+      changeMonth(monthOnRender)
+    }
+  }
 
   const getCustomers = () => {
     axios.get('/customers')
@@ -38,7 +69,16 @@ const App = () => {
   useEffect(() => {
     getCustomers();
     getRooms();
+    getMonth();
   }, [])
+
+  useEffect(() => {
+    if (isMounted.current) {
+      checkForNewMonth(currentMonth)
+    } else {
+      isMounted.current = true;
+    }
+  }, [currentMonth])
 
   const updateCustomerInfo = () => {
     if (selectedCustomer !== undefined) {

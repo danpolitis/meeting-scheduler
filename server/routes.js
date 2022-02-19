@@ -15,5 +15,10 @@ router.route('/rooms')
 
 router.route('/customers')
   .get(controllers.customers.get)
+  .put(controllers.customers.put)
+
+router.route('/date')
+  .get(controllers.date.get)
+  .put(controllers.date.put)
 
   module.exports = router;
