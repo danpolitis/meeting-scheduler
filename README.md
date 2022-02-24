@@ -49,7 +49,7 @@ npm start
 
 ## Usage Guide 
 
-- Double click any cell to bring up the form modal which allows you to edit the current appoint
+- Double click any cell to bring up the form modal which allows you to edit the current appointment
 - Click and drag from any cell to any later cell, then click the last-selected cell to open up a form modal for the selected region
 - In the form modal information about price and discounts used will be displayed along the top
 - Click any existing appointment to bring up the appointment tooltip, click the trashcan icon to delete the appointment
