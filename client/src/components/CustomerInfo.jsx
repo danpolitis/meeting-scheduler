@@ -2,7 +2,7 @@ import React from 'react'
 import { Card, ListGroup, Table } from 'react-bootstrap'
 
 const CustomerInfo = ({ customer }) => {
-  
+
 
   return (
       <Card style={{ width: "60%", margin: "auto", textAlign:"center", marginBottom: '10px'}}>

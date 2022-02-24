@@ -80,7 +80,6 @@ const calculateHours = (endDate, startDate) => {
   } else {
     return ((new Date(endDate)- new Date(startDate))/3600000)
   }
-
 }
 
 const calculatePrice = (hours, rate, credit, freeHours, roomType, halfHourlyRate, halfDayRate, fullDayRate) => {
@@ -88,25 +87,23 @@ const calculatePrice = (hours, rate, credit, freeHours, roomType, halfHourlyRate
   let remainingFreeHours = remainingDiscountHours(hours, freeHours);
   let hoursUsed = freeHours - remainingFreeHours
   hours = remainingUnpaidHours(hours, freeHours);
+  //if free hours covers the entire cost return price values
   if (hours === 0) {
-    if (hoursUsed > 4.5) {
-      return [0, remainingFreeHours, credit, hoursUsed, 0]
-    } else {
-      return [0, remainingFreeHours, credit, hoursUsed, 0]
-    }
+    return [0, remainingFreeHours, credit, hoursUsed, 0]
   }
+  //calculates price for office appointments else calculates for meeting appointments
   if(roomType === 'office'){
     hours = hours / 4.5
-    console.log(hours)
+    //if only full day meetings calculate price accordingly else calculate price with extra half day
     if (hours % 2 === 0) {
       price = hours/2 * 150
     } else {
       price = Math.floor(hours/2) * 150 + 90
     }
-    console.log(price)
   } else {
     price = halfHourlyRate * hours/(.5)
   }
+  // if room type is office calculate credit and remaining credit
   if (roomType === 'office') {
     let leftoverCredit = remainingCredit(price, credit);
     let creditUsed = credit - leftoverCredit;
@@ -118,7 +115,7 @@ const calculatePrice = (hours, rate, credit, freeHours, roomType, halfHourlyRate
     price = price * rate;
     return [price, remainingFreeHours, leftoverCredit, hoursUsed, creditUsed];
   } else {
-    return [price, remainingFreeHours, credit, hoursUsed, 0]
+    return [price, remainingFreeHours, credit, hoursUsed, ]
   }
 }
 
@@ -130,6 +127,7 @@ class RoomScheduler extends React.Component {
   }
 
   onAppointmentFormOpening =  (e) => {
+    //removes some of the default form items from the form modal
     e.form.option('items[0].items[1].items[0].editorOptions.type', 'datetime')
     e.form.option('items[0].items[1].items[2].editorOptions.type', 'datetime')
     e.form.option('items[0].items[2].items[0].visible', false)
@@ -174,7 +172,7 @@ class RoomScheduler extends React.Component {
         }
       }
     }
-    //adds the appointment information to the appointment form
+    //adds the appointment information to the appointment form for prexisting meetings else adds it to the form for new meetings
     if (e.appointmentData.hoursUsed !== undefined) {
       e.popup.option('showTitle', true);
       e.popup.option('titleTemplate', `Final Price: $${e.appointmentData.price}, Free Hours Used: ${e.appointmentData.hoursUsed} hours, Credit Used: $${e.appointmentData.creditsUsed}`)
@@ -222,12 +220,12 @@ class RoomScheduler extends React.Component {
           break;
         }
         //checks for conflicts
-        if (e.appointmentData.startDate > e.component._preparedItems[i].rawAppointment. startDate && e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.endDate) {
+        if (e.appointmentData.startDate > e.component._preparedItems[i].rawAppointment.startDate && e.appointmentData.startDate < e.component._preparedItems[i].rawAppointment.endDate) {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
           break;
         }
-        if (e.appointmentData.startDate === e.component._preparedItems[i].rawAppointment. startDate) {
+        if (e.appointmentData.startDate === e.component._preparedItems[i].rawAppointment.startDate) {
           e.cancel = true;
           alert('An appointment already exists at that time. Please select a different time.')
           break;
@@ -293,7 +291,6 @@ class RoomScheduler extends React.Component {
       meetings.reload()
     }
   }
-  //style={{backgroundColor: '#198754', height: '100%', borderRadius: '0.5%'}}
   render() {
     return (
       <div id="schedulerWrapper" roomid={this.props.roomId}>
