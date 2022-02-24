@@ -295,7 +295,6 @@ class RoomScheduler extends React.Component {
     return (
       <div id="schedulerWrapper" roomid={this.props.roomId}>
         <Scheduler id='roomScheduler'
-          // views = {['day', 'week', 'month']}
           dataSource={meetings}
           maxAppointmentsPerCell={1}
           endDayHour={17}
